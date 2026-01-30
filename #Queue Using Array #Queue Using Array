@@ -1,0 +1,59 @@
+
+class QueueEmptyError(Exception):
+  pass
+class Queue:
+  def __init__(self,capacity: int = 8):
+    if capacity <= 0:
+      raise ValueError("Capacity must be a positive integer")
+    self._data = [None] * capacity
+    self._front = 0
+    self._rear = 0
+    self._size = 0
+  def isEmpty(self) -> bool:
+    return self._size == 0
+
+  def size(self) -> int:
+    return self._size
+
+  def _resize(self, new_cap):
+    old_data = self._data
+    self._data = [None] * new_cap
+    for i in range(self._size):
+        self._data[i] = old_data[(self._front + i) % len(old_data)]
+    self._front = 0
+    self._rear = self._size
+  def enqueue(self, value):
+    if self._size == len(self._data):
+        self._resize(len(self._data)*2)
+    self._data[self._rear] = value
+    self._rear = (self._rear + 1) % len(self._data)
+    self._size += 1
+  def dequeue(self):
+    if self.isEmpty():
+      raise QueueEmptyError("Queue is empty")
+
+    value = self._data[self._front]
+    self._data[self._front] = None # Clear the old slot
+    self._front = (self._front + 1) % len(self._data)
+    self._size -= 1
+    return value
+  def peek(self):
+    if self.isEmpty():
+      raise QueueEmptyError("Queue is empty")
+    return self._data[self._front]
+  def traverse(self):
+    for i in range(self._size):
+      print(self._data[(self._front + i) % len(self._data)])
+
+if __name__ == "__main__":
+  q = Queue(capacity = 4)
+  print("initially empty? ->",q.isEmpty())
+  for val in ["A","B","C","D"]:
+    q.enqueue(val)
+  print("size ->",q.size())
+  print("Front element(peek):",q.peek())
+  print("traverse")
+  q.traverse()
+  print("\n Dequeuing...")
+  while not q.isEmpty():
+    print("dequeued:",q.dequeue())
